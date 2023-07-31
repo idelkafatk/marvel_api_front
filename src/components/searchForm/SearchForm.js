@@ -8,17 +8,20 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 
 const SearchForm = () => {
     const [result, setResult] = useState(null)
-    // const [loading, setLoading] = useState(false)
-    const {getCharacterByName, clearError, loading, error} = useMarvelService()
+    const [loading, setLoading] = useState(false)
+    const {getCharacterByName, clearError, setProcess, error} = useMarvelService()
 
     const searchCharacter = (query) => {
         clearError()
+        setLoading(true)
 
         getCharacterByName(query)
             .then(onResultLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onResultLoaded = (result) => {
+        setLoading(false)
         setResult(result)
     }
 
@@ -36,8 +39,9 @@ const SearchForm = () => {
             </div>
     }
 
-    const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
-    const content = !(loading || error || !(result)) ? renderResult() : null
+    const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage /></div> : null
+    console.log(errorMessage)
+    const content = (result) ? renderResult() : null
 
     return (
         <div className="char__search-form">

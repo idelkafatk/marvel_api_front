@@ -6,6 +6,25 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 import {CSSTransition, TransitionGroup} from "react-transition-group";
 
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner/>
+            break
+        case 'loading':
+            return newItemLoading ? <Component/> : <Spinner/>
+            break
+        case 'confirmed':
+            return <Component/>
+            break
+        case 'error':
+            return <ErrorMessage/>
+            break
+        default:
+            throw new Error('Unexpected process state')
+    }
+}
+
 const ComicsList = () => {
 
     const [comics, setComics] = useState([])
@@ -13,7 +32,7 @@ const ComicsList = () => {
     const [newItemLoading, setNewItemLoading] = useState(false)
     const [comicsEnded, setComicsEnded] = useState(false)
 
-    const {loading, error, getAllComics, clearError} = useMarvelService()
+    const {getAllComics, clearError, process, setProcess} = useMarvelService()
 
     useEffect(() => {
         updateComics()
@@ -21,8 +40,10 @@ const ComicsList = () => {
 
     const updateComics = () => {
         clearError()
+
         getAllComics()
             .then(onComicsLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onComicsLoaded = (res) => {
@@ -39,6 +60,7 @@ const ComicsList = () => {
 
         getAllComics(offset)
             .then(onComicsLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const comicsList = () => {
@@ -66,15 +88,9 @@ const ComicsList = () => {
         )
     }
 
-    const items = comicsList()
-    const errorMessage = error ? <ErrorMessage/> : null
-    const spinner = loading && !newItemLoading? <Spinner/> : null
-
     return (
         <div className="comics__list">
-            {errorMessage}
-            {spinner}
-            {items}
+            {setContent(process, () => comicsList(), newItemLoading)}
             <button className="button button__main button__long"
                     onClick={() => onRequest(offset)}
                     disabled={newItemLoading}

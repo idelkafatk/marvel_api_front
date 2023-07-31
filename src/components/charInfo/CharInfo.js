@@ -1,53 +1,45 @@
 import './charInfo.scss';
-import {useState, useEffect} from "react";
+import {useEffect, useState} from "react";
 import useMarvelService from "../../services/MarvelService";
-import ErrorMessage from "../errorMessage/ErrorMessage";
-import Spinner from "../spinner/Spinner";
-import Skeleton from "../skeleton/Skeleton";
 import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
+import setContent from "../../utils/setContent";
 
 const CharInfo = (props) =>{
     const [char, setChar] = useState(null)
     const {charId} = props
 
-    const {loading, error, getCharacter, clearError} = useMarvelService()
+    const {getCharacter, clearError, process, setProcess} = useMarvelService()
 
     useEffect(() => {
         onUpdateChars()
     }, [charId])
 
     const onUpdateChars = () => {
-        clearError()
+
         if (!charId) {
             return
         }
 
+        clearError()
         getCharacter(charId)
             .then(onCharsLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onCharsLoaded = (char) => {
         setChar(char)
     }
 
-    const skeleton = char || loading || error ? null : <Skeleton/>
-    const errorMessage = error ? <ErrorMessage/> : null
-    const spinner = loading ? <Spinner/> : null
-    const content = !(loading || errorMessage || !char) ? <View char={char}/> : null
-
     return (
         <div className="char__info">
-            {skeleton}
-            {errorMessage}
-            {spinner}
-            {content}
+            {setContent(process, View, char)}
         </div>
     )
 }
 
-const View = (props) => {
-    const {name, description, thumbnail, homepage, wiki, comics} = props.char
+const View = (data) => {
+    const {name, description, thumbnail, homepage, wiki, comics} = data.data
     return (
         <>
             <div className="char__basics">
@@ -78,7 +70,7 @@ const View = (props) => {
 
                         return (
                             <li key={i} className="char__comics-item">
-                                <Link exac to={`/comics/${item.resourceURI.replace(/\D/g, '').slice(1)}`}>{item.name}</Link>
+                                <Link exac={'true'} to={`/comics/${item.resourceURI.replace(/\D/g, '').slice(1)}`}>{item.name}</Link>
                             </li>
                         )
                     })

@@ -4,13 +4,14 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 import "./singleCharPage.scss";
 import {useParams, Link} from "react-router-dom";
+import setContent from "../../utils/setContent";
 
 const SingleComicPage = () => {
     const {charId} = useParams()
 
-    const [singleComics, setSingleComics] = useState(null)
+    const [singleChar, setSingleChar] = useState(null)
 
-    const {loading, error, clearError, getCharacter} = useMarvelService()
+    const {process, setProcess, clearError, getCharacter} = useMarvelService()
 
     useEffect(() => {
         updateSingleChar(charId)
@@ -20,27 +21,22 @@ const SingleComicPage = () => {
         clearError()
         getCharacter(id)
             .then(onSingleCharLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onSingleCharLoaded = (res) => {
-        setSingleComics(res)
+        setSingleChar(res)
     }
-
-    const errorMessage = error ? <ErrorMessage/> : null
-    const spinner = loading ? <Spinner/> : null
-    const content = !(loading || errorMessage || !singleComics) ? <View char={singleComics}/>: null
 
     return (
         <>
-            {errorMessage}
-            {spinner}
-            {content}
+            {setContent(process, View, singleChar)}
         </>
     )
 }
 
-const View = (char) => {
-    const {thumbnail, description, name} = char.char
+const View = ({data}) => {
+    const {thumbnail, description, name} = data
     return (
         <div className="single-comic">
             <img src={thumbnail} alt="x-men" className="single-comic__img"/>
