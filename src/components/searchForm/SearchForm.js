@@ -40,7 +40,7 @@ const SearchForm = () => {
     }
 
     const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage /></div> : null
-    console.log(errorMessage)
+
     const content = (result) ? renderResult() : null
 
     return (

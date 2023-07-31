@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, useMemo} from "react";
 import './charList.scss';
 import PropTypes from "prop-types";
 import useMarvelService from "../../services/MarvelService";
@@ -95,9 +95,13 @@ const CharList = (props) => {
         )
     }
 
+    const elements = useMemo(() => {
+        return setContent(process, () => renderAllChars(), newItemLoading)
+    }, [process])
+
     return (
         <div className="char__list">
-            {setContent(process, () => renderAllChars(), newItemLoading)}
+            {elements}
             <button
                 className="button button__main button__long"
                 disabled={newItemLoading}

@@ -6,6 +6,7 @@ import decoration from "../../resources/img/vision.png";
 import {useState} from "react";
 import SearchForm from "../searchForm/SearchForm";
 import {Helmet} from "react-helmet";
+import {Logger} from "sass";
 
 const MainPage = () => {
 
